@@ -1,0 +1,4 @@
+---
+  - import_playbook: playbooks/worker0_join.yml
+  - import_playbook: playbooks/worker1_join.yml
+  - import_playbook: playbooks/worker2_join.yml

@@ -1,0 +1,6 @@
+---
+  - import_playbook: setup_haproxy.yml
+  - import_playbook: setup_main_control.yml
+  - import_playbook: setup_worker.yml
+  - import_playbook: playbooks/flannel.yml
+  - import_playbook: playbooks/kubectl.yml 

@@ -1,0 +1,69 @@
+# haproxy setup
+
+---
+  - hosts: haproxy1
+    become: yes
+    vars_files:
+    - env_variables
+    tasks:
+    - name: Setup the hostname
+      shell: hostnamectl set-hostname {{ hostname[7] }}
+
+    - name: Make Hostname persist.
+      copy:
+        dest: "/etc/cloud/cloud.cfg.d/99_hostname.cfg" 
+        content: |  
+          preserve_hostname: true  
+    
+    - name: Install the latest version of haproxy
+      yum:
+        name: haproxy
+        state: latest
+
+    - name: Point to our own DNS server
+      shell: echo "nameserver 10.42.0.241" > /etc/resolv.conf
+
+    - name: Remove current haproxy.cfg
+      file:
+        path: /etc/haproxy/haproxy.cfg
+        state: absent
+    
+    - name: Create haproxy.cfg
+      copy:
+        dest: "/etc/haproxy/haproxy.cfg" 
+        content: |
+          global
+              daemon    
+              maxconn 256
+
+          defaults
+              mode http
+              timeout connect 5000ms    
+              timeout client 50000ms
+              timeout server 50000ms
+
+          listen stats *:9999
+              stats enable
+              stats hide-version    
+              stats uri /
+              stats auth aws:snowball
+
+          frontend kubernetes-frontend
+              bind *:6443
+              mode tcp
+              option tcplog
+              default_backend kubernetes-backend
+
+          backend kubernetes-backend
+              mode tcp
+              option tcp-check
+              balance roundrobin
+              server master0 {{ masters[0] }}:6443 check
+              server master1 {{ masters[1] }}:6443 check
+              server master2 {{ masters[2] }}:6443 check
+
+    - name: Loose SELinux policy to allow HAProxy to bind address.
+      shell: setsebool -P haproxy_connect_any on
+
+    - name: Start the HAProxy.
+      shell: systemctl start haproxy && systemctl enable haproxy    

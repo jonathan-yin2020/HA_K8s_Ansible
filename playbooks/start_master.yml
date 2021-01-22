@@ -1,0 +1,76 @@
+# k8s master init
+
+---
+  - hosts: master0
+    become: yes
+    vars_files:
+    - env_variables
+    tasks:
+    - name: Setup the hostname
+      shell: hostnamectl set-hostname {{ hostname[1] }}
+
+    - name: Make Hostname persist.
+      copy:
+        dest: "/etc/cloud/cloud.cfg.d/99_hostname.cfg" 
+        content: |  
+          preserve_hostname: true
+      
+    - name: Create a second loopback interface.
+      copy: 
+        dest: "/etc/sysconfig/network-scripts/ifcfg-lo:1"
+        content: |
+          DEVICE=lo:1  
+          IPADDR={{ masters[0] }}
+          NETMASK=255.255.255.255 
+          NETWORK=127.0.0.0 
+          BROADCAST=127.255.255.255 
+          ONBOOT=yes 
+          NAME=loopback
+
+    - name: Restart network
+      shell: systemctl restart network
+    
+    - name: Point DNS to our server
+      lineinfile:
+        path: /etc/resolv.conf
+        regexp: '^nameserver'
+        line: nameserver 10.42.0.241
+
+    - name: Enable the module for cluster communication.
+      shell: sysctl --system 
+    
+    - name: Enabling Bridge Firewall Rule
+      shell: "echo '1' > /proc/sys/net/ipv4/ip_forward"
+
+    - name: Create cluster configuration.
+      copy: 
+        dest: "/home/centos/kubeadm-config.yaml"
+        content: |
+          apiVersion: kubeadm.k8s.io/v1beta2
+          kind: ClusterConfiguration
+          controlPlaneEndpoint: "haproxy.snowball:6443"
+          networking:
+            podSubnet: "10.244.0.0/16"
+          etcd:
+            local:
+              extraArgs: 
+                listen-peer-urls: "https://0.0.0.0:2380" 
+                listen-client-urls: "https://0.0.0.0:2379"
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta2
+          kind: InitConfiguration
+          localAPIEndpoint:
+            advertiseAddress: "{{ masters[0] }}"
+    
+    - name: Resetting kubeadm
+      shell: kubeadm reset -f
+      register: output
+ 
+    - name: Initializing Kubernetes cluster
+      shell: kubeadm init --config /home/centos/kubeadm-config.yaml --upload-certs
+      register: output
+
+    - name: Storing Logs and Generated token for future purpose.
+      local_action: copy content={{ output.stdout }} dest={{ token_file }}
+      become: False  
+      

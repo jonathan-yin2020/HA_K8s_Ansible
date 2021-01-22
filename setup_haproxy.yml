@@ -1,0 +1,4 @@
+---
+  - import_playbook: playbooks/prerequisites.yml
+  - import_playbook: playbooks/haproxy0.yml
+  - import_playbook: playbooks/haproxy1.yml

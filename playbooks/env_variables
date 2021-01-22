@@ -1,0 +1,25 @@
+masters:
+- 10.42.0.10
+- 10.42.0.20
+- 10.42.0.30
+
+workers:
+- 10.42.0.11
+- 10.42.0.21
+- 10.42.0.31
+
+proxy:
+- 10.42.0.100
+- 10.42.0.110
+
+hostname:
+- haproxy0
+- master0
+- master1
+- master2
+- worker0
+- worker1
+- worker2
+- haproxy1
+
+token_file: join_token

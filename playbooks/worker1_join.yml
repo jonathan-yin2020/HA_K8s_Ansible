@@ -1,0 +1,49 @@
+# k8s worker join
+
+---
+  - hosts: worker1
+    become: yes
+    vars_files:
+    - env_variables
+    tasks:
+    - name: Setup the hostname
+      shell: hostnamectl set-hostname {{ hostname[5] }}
+    - name: Make Hostname persist.
+      copy:
+        dest: "/etc/cloud/cloud.cfg.d/99_hostname.cfg"
+        content: |
+          preserve_hostname: true
+
+    - name: Create a second loopback interface.
+      copy:
+        dest: "/etc/sysconfig/network-scripts/ifcfg-lo:1"
+        content: |
+          DEVICE=lo:1
+          IPADDR={{ workers[1] }}
+          NETMASK=255.255.255.255
+          NETWORK=127.0.0.0
+          BROADCAST=127.255.255.255
+          ONBOOT=yes
+          NAME=loopback
+
+    - name: Restart network
+      shell: systemctl restart network
+
+    - name: Point DNS to our server
+      shell: echo "nameserver 10.42.0.241" > /etc/resolv.conf
+
+    - name: Enable the module for cluster communication.
+      shell: sysctl --system
+
+    - name: Enabling Bridge Firewall Rule
+      shell: "echo '1' > /proc/sys/net/ipv4/ip_forward"
+
+    - name: Copying token to worker node
+      copy: src={{ token_file }} dest="/home/centos/join_token"
+
+    - name: Joining worker nodes with kubernetes master
+      shell: |
+        cat join_token | tail -2 > join.sh
+        kubeadm reset -f
+        sh join.sh
+

@@ -1,0 +1,22 @@
+# hosts
+
+[loadbalancer]
+haproxy0 ansible_host=10.42.0.100
+haproxy1 ansible_host=10.42.0.110
+
+[masterk8s]
+master0 ansible_host=10.42.0.10
+master1 ansible_host=10.42.0.20
+master2 ansible_host=10.42.0.30
+
+[workerk8s]
+worker0 ansible_host=10.42.0.11
+worker1 ansible_host=10.42.0.21
+worker2 ansible_host=10.42.0.31
+
+[k8s:children]
+masterk8s
+workerk8s
+
+[local]
+control ansible_connection=local

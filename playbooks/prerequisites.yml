@@ -1,0 +1,14 @@
+# run on all
+---
+- hosts: all
+  become: yes
+  vars_files:
+  - env_variables
+  tasks:
+  - name: Upgrade all packages
+    yum:
+      name: '*'
+      state: latest
+  
+  - name: Point DNS to our server
+    shell: echo "nameserver 10.42.0.241" > /etc/resolv.conf

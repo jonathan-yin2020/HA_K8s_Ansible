@@ -1,0 +1,29 @@
+---
+  - hosts: control
+    become: yes
+    vars_files:
+    - env_variables
+    tasks:
+    - name: Add the Kubernetes repo.
+      copy:
+        dest:  "/etc/yum.repos.d/kubernetes.repo"
+        content: |
+          [kubernetes]
+          name=Kubernetes
+          baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+          enabled=1
+          gpgcheck=0
+          repo_gpgcheck=0
+          gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+                https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    
+    - name: Install Kubectl for control
+      shell: yum install -y kubectl-1.18.1
+ 
+    - name: Copying required files to control
+      become: yes
+      become_user: centos
+      shell: |
+        mkdir -p $HOME/.kube
+        scp -i $HOME/.ssh/tmp.pem centos@{{ masters[0] }}:~/.kube/config $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config

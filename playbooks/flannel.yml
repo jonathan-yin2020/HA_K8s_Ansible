@@ -1,0 +1,35 @@
+---
+  - hosts: master0
+    vars_files:
+    - env_variables
+    tasks:
+    - name: Copying required files
+      shell: |
+        mkdir -p $HOME/.kube
+        sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config
+ 
+    - name: Apply annotations to all nodes.
+      shell: |
+        kubectl annotate node {{ hostname[1] }} flannel.alpha.coreos.com/public-ip-overwrite={{ masters[0] }} --overwrite
+        kubectl annotate node {{ hostname[2] }} flannel.alpha.coreos.com/public-ip-overwrite={{ masters[1] }} --overwrite
+        kubectl annotate node {{ hostname[3] }} flannel.alpha.coreos.com/public-ip-overwrite={{ masters[2] }} --overwrite
+        kubectl annotate node {{ hostname[4] }} flannel.alpha.coreos.com/public-ip-overwrite={{ workers[0] }} --overwrite
+        kubectl annotate node {{ hostname[5] }} flannel.alpha.coreos.com/public-ip-overwrite={{ workers[1] }} --overwrite
+        kubectl annotate node {{ hostname[6] }} flannel.alpha.coreos.com/public-ip-overwrite={{ workers[2] }} --overwrite
+    
+    - name: Copy flannel file to control plane
+      copy:
+        src: /home/centos/HA_k8s_Ansible/kube-flannel-hybrid.yml
+        dest: $HOME/kube-flannel-hybrid.yml
+
+    - name: Deploy Flannel.
+      shell: kubectl apply -f $HOME/kube-flannel-hybrid.yml
+
+    - name: show k8s status
+      shell: kubectl get nodes -o wide
+      register: kube_output
+
+    - name: Debug K8s status
+      debug:
+        msg: "{{ kube_output }}"          
