@@ -1,5 +1,12 @@
 # Kubernetes Cluster on Snowball using Ansible
-* Clone this repository to your controller instance.
+* Download and install Ansible on the Controller instance.
+
+```
+sudo yum install epel-release
+sudo yum install ansible
+```
+
+* Clone this repository to your Controller instance.
 * Modify ansible.cfg to match your ssh key location.
 * Modify you hosts and env_variables file to match your enviorment.
 * Create seven Centos7 instances. In this setup includes one proxy, three masters , and three workers.
