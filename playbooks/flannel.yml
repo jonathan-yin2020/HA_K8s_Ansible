@@ -20,7 +20,7 @@
     
     - name: Copy flannel file to control plane
       copy:
-        src: /home/centos/HA_k8s_Ansible/kube-flannel-hybrid.yml
+        src: /home/centos/HA_K8s_Ansible/kube-flannel-hybrid.yml
         dest: $HOME/kube-flannel-hybrid.yml
 
     - name: Deploy Flannel.
