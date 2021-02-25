@@ -18,7 +18,7 @@
                 https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
     
     - name: Install Kubectl for control
-      shell: yum install -y kubectl-1.18.1
+      shell: yum install -y kubectl-1.18.9
  
     - name: Copying required files to control
       become: yes

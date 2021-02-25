@@ -1,20 +1,23 @@
-[init] Using Kubernetes version: v1.20.0
+[init] Using Kubernetes version: v1.18.15
 [preflight] Running pre-flight checks
 [preflight] Pulling images required for setting up a Kubernetes cluster
 [preflight] This might take a minute or two, depending on the speed of your internet connection
 [preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Starting the kubelet
 [certs] Using certificateDir folder "/etc/kubernetes/pki"
 [certs] Generating "ca" certificate and key
 [certs] Generating "apiserver" certificate and key
-[certs] apiserver serving cert is signed for DNS names [haproxy.snowball kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local master0.snowball] and IPs [10.96.0.1 10.42.0.10]
+[certs] apiserver serving cert is signed for DNS names [master0 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local haproxy.snowball] and IPs [10.96.0.1 10.42.0.10]
 [certs] Generating "apiserver-kubelet-client" certificate and key
 [certs] Generating "front-proxy-ca" certificate and key
 [certs] Generating "front-proxy-client" certificate and key
 [certs] Generating "etcd/ca" certificate and key
 [certs] Generating "etcd/server" certificate and key
-[certs] etcd/server serving cert is signed for DNS names [localhost master0.snowball] and IPs [10.42.0.10 127.0.0.1 ::1]
+[certs] etcd/server serving cert is signed for DNS names [master0 localhost] and IPs [10.42.0.10 127.0.0.1 ::1]
 [certs] Generating "etcd/peer" certificate and key
-[certs] etcd/peer serving cert is signed for DNS names [localhost master0.snowball] and IPs [10.42.0.10 127.0.0.1 ::1]
+[certs] etcd/peer serving cert is signed for DNS names [master0 localhost] and IPs [10.42.0.10 127.0.0.1 ::1]
 [certs] Generating "etcd/healthcheck-client" certificate and key
 [certs] Generating "apiserver-etcd-client" certificate and key
 [certs] Generating "sa" key and public key
@@ -23,24 +26,21 @@
 [kubeconfig] Writing "kubelet.conf" kubeconfig file
 [kubeconfig] Writing "controller-manager.conf" kubeconfig file
 [kubeconfig] Writing "scheduler.conf" kubeconfig file
-[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
-[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
-[kubelet-start] Starting the kubelet
 [control-plane] Using manifest folder "/etc/kubernetes/manifests"
 [control-plane] Creating static Pod manifest for "kube-apiserver"
 [control-plane] Creating static Pod manifest for "kube-controller-manager"
 [control-plane] Creating static Pod manifest for "kube-scheduler"
 [etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
 [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
-[apiclient] All control plane components are healthy after 9.693940 seconds
+[apiclient] All control plane components are healthy after 16.034465 seconds
 [upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
-[kubelet] Creating a ConfigMap "kubelet-config-1.20" in namespace kube-system with the configuration for the kubelets in the cluster
+[kubelet] Creating a ConfigMap "kubelet-config-1.18" in namespace kube-system with the configuration for the kubelets in the cluster
 [upload-certs] Storing the certificates in Secret "kubeadm-certs" in the "kube-system" Namespace
 [upload-certs] Using certificate key:
-25b79e893776c2e2a48433dcdb771c4ebc8c8b0b6a2f95fb06c361ca7f2e3a08
-[mark-control-plane] Marking the node master0.snowball as control-plane by adding the labels "node-role.kubernetes.io/master=''" and "node-role.kubernetes.io/control-plane='' (deprecated)"
-[mark-control-plane] Marking the node master0.snowball as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
-[bootstrap-token] Using token: witxn7.wnwz5btu5nbws51e
+43bff2822d2d27e9022d9cfbf0f950471e2b9a7f6f01af7c48e2afef449aed8d
+[mark-control-plane] Marking the node master0 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node master0 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+[bootstrap-token] Using token: c9tr3f.dmuyqdfzpdl6z1s8
 [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
 [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to get nodes
 [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
@@ -59,19 +59,15 @@ To start using your cluster, you need to run the following as a regular user:
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
   sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-Alternatively, if you are the root user, you can run:
-
-  export KUBECONFIG=/etc/kubernetes/admin.conf
-
 You should now deploy a pod network to the cluster.
 Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
   https://kubernetes.io/docs/concepts/cluster-administration/addons/
 
 You can now join any number of the control-plane node running the following command on each as root:
 
-  kubeadm join haproxy.snowball:6443 --token witxn7.wnwz5btu5nbws51e \
-    --discovery-token-ca-cert-hash sha256:ac820c2f20029a33dda64df5f9aaabdda07a49d703c8aa5adcb5ca5f61787f4e \
-    --control-plane --certificate-key 25b79e893776c2e2a48433dcdb771c4ebc8c8b0b6a2f95fb06c361ca7f2e3a08
+  kubeadm join haproxy.snowball:6443 --token c9tr3f.dmuyqdfzpdl6z1s8 \
+    --discovery-token-ca-cert-hash sha256:13c06c3daeb7f145d8c1b7228a7d3f354caf2a4576617d8ecd745f68f650d201 \
+    --control-plane --certificate-key 43bff2822d2d27e9022d9cfbf0f950471e2b9a7f6f01af7c48e2afef449aed8d
 
 Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
 As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
@@ -79,5 +75,5 @@ As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you c
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join haproxy.snowball:6443 --token witxn7.wnwz5btu5nbws51e \
-    --discovery-token-ca-cert-hash sha256:ac820c2f20029a33dda64df5f9aaabdda07a49d703c8aa5adcb5ca5f61787f4e 
+kubeadm join haproxy.snowball:6443 --token c9tr3f.dmuyqdfzpdl6z1s8 \
+    --discovery-token-ca-cert-hash sha256:13c06c3daeb7f145d8c1b7228a7d3f354caf2a4576617d8ecd745f68f650d201 

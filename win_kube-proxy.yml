@@ -90,7 +90,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        image: sigwindowstools/kube-proxy:v1.18.1-nanoserver
+        image: sigwindowstools/kube-proxy:v1.18.9-nanoserver
         name: kube-proxy
         volumeMounts:
         - name: host
